@@ -1,24 +1,61 @@
-# Known-good seller firmware reference (provided by owner, 2026-11-06)
+# Manufacturer binary baseline and comparison
 
-These are **binary** reference images, *not decompiled source files*. The SHA-256 values below identify exactly the two uploaded files. Keep the original copies separately in case a rebuilt firmware is unsuccessful.
+## Exact reproducibility established 2026-11-06
 
-| Image | Size (bytes) | SHA-256 |
-| --- | ---: | --- |
-| `charybdis_left-nice_nano_v2-zmk.uf2` | 363008 | `9eef19d7138cfe3c7acff26d1a562ca7a55d6463599c0a4c1bd12e86b383b6a0` |
-| `charybdis_right-nice_nano_v2-zmk.uf2` | 528384 | `42ad17a02ff98e46799ce09651cb5cca5d4bb2fe0fea19f8951a9a765dc85672` |
+The previously uploaded functioning manufacturer's UF2 pair is now reproduced
+bit-for-bit from public source and a GitHub Actions build:
 
-Both uploads contain valid UF2 blocks (payload size 256, family ID `0xada52840`) and recognizable `ZMK`, `Zephyr OS v3.5.0`, `XI-MK1_2` strings. The right contains `trackball@0` and `encoder_right`; left contains `encoder_left_1`. These confirm hardware family and construction, **not exact source equivalence**.
+- Historical source: [Vzhao-L/zmk-for-charybdis @ 6c32880](https://github.com/Vzhao-L/zmk-for-charybdis/commit/6c32880db0a7a61efa826c3b624ba6cb0884f769).
+- Frozen source branch: [baseline/vendor-bitexact-20261106](https://github.com/Tolian82/keymap-editor2/tree/baseline/vendor-bitexact-20261106).
+- Archived reference build: [GitHub Actions 42240434217](https://github.com/Tolian82/keymap-editor2/actions/runs/42240434217).
 
-Source configuration retained from `Tolian82/keymap-editor`:
-- Trackball node: `config/boards/shields/charybdis/charybdis_right.overlay` with `scroll-layers = <1>;`.
-- Encoder hardware: `charybdis.dtsi`, left/right overlays and per-half `.conf` files.
-- Per-layer encoder bindings in `config/charybdis.keymap`.
-- Exact checks before build: `scripts/check_pointing_config.py`.
+| Source of images | LEFT SHA-256 | RIGHT SHA-256 |
+| --- | --- | --- |
+| Owner's original known-good manufacturer UF2s | `9eef19d7138cfe3c7acff26d1a562ca7a55d6463599c0a4c1bd12e86b383b6a0` | `42ad17a02ff98e46799ce09651cb5cca5d4bb2fe0fea19f8951a9a765dc85672` |
+| Build 42240434217 | **SAME** | **SAME** |
 
-The editor itself is not a UF2-to-ZMK decompiler. Repeated firmware builds can differ due to toolchain revision, driver dependencies, build flags and source differences.
+Original sizes: left 363008 bytes; right 528384 bytes. Both exact matches
+were verified against the original uploaded file bytes, not inferred from CI.
 
-## Keymap Editor metadata correction (2026-11-06)
+## Source forensics
 
-The original source config had `config/charybdis.json: "sensors": []` despite declaring `left_encoder_1` and `right_encoder` in its ZMK shield. The metadata has been updated to expose both rotary encoders in the same order as `charybdis.dtsi`. This changes **editor metadata only**; it does not modify hardware overlays, PMW3610 source, keymap bindings, or the flashing reference binaries.
+The earlier imported `keymap-editor2` build 42201763467 matched the LEFT
+image byte-for-byte but differed from the manufacturer RIGHT image in 59
+payload bytes (9 blocks). With the untouched latest upstream
+`main-20250226` keymap it differed by only 19 payload bytes (4 blocks).
+Restoring the historical `layer_0` second sensor binding from
+`&scroll_vertical_encoder` to `&scroll_horizontal_encoder` eliminated
+ALL differences and recovered the original RIGHT SHA-256 exactly.
 
-Verification: CI verifies the sensor list, locked ZMK hardware configuration, rotate behaviors, `&msc` scroll parameters, and per-layer sensor bindings. This does not replace a physical regression test after the editor saves a change.
+This establishes source correspondence **for the unchanged reference
+firmware**. It does NOT prove the later customized firmware behaves identically:
+adding macros changes binary code/data layout and the owner observed a left
+scroll wheel regression after flashing customized run 42206973808.
+
+## Owner-confirmed actual hardware
+
+- LEFT: physical EC11 rotary scroll wheel, vertical scrolling.
+- RIGHT: physical PMW3610 trackball, mouse on `layer_0`, scroll on `layer_1`.
+- There is **NO physical right EC11 encoder**.
+- Legacy `right_encoder` DT node and second `sensor-bindings` slot are part
+  of the *exactly reproduced vendor build*. A draft experimental PR #2
+  proposed disabling the phantom hardware node, but this diverges from the
+  manufacturer reference and has not been hardware validated.
+- Left wheel events traverse a separate ZMK split BLE sensor notification
+  channel. Normal keyboard key presses from both halves are insufficient
+  to prove that sensor notifications work.
+
+## Safe changes to main
+
+The owner's customized keymap and four Windows macros remain in `main`.
+Only the `layer_0` second sensor binding and the guard/documentation were
+updated to align with the manufacturer's source. The `charybdis.dtsi`,
+overlay files, PMW3610 driver and ZMK revision are not changed.
+
+In particular, `config/charybdis.json` exposes both **logical** sensor
+positions to the web editor so the second `sensor-bindings` entry survives
+round-trip saves. This must not be confused with two physical rotary wheels.
+
+**Important:** no claim of a hardware fix is made solely from recompiling a
+customized source. Do not run `settings_reset` without planning Bluetooth
+re-pairing and without preserving the working vendor UF2 backups.

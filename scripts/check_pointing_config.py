@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""Guard critical Charybdis ZMK behavior while allowing keymap-editor key changes.
+"""Protect the vendor-confirmed Charybdis pointing/split sensor mapping.
 
-This checks repository consistency only; it is NOT proof of equivalence to vendor UF2.
+Golden baseline: branch baseline/vendor-bitexact-20261106, build 42240434217.
+The source of that historical build reproduced both owner-supplied vendor UF2 files
+byte for byte. THIS check guards source config only; it cannot prove that a newly
+modified firmware with user macros behaves correctly on physical hardware.
 """
 from __future__ import annotations
 
@@ -69,7 +72,7 @@ def main() -> None:
     if not {"0", "1", "2"}.issubset(layers):
         fail("missing or reordered core layers 0/1/2")
     expected = {
-        "0": ["&scroll_vertical_encoder", "&scroll_vertical_encoder"],
+        "0": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
         "1": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
         "2": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
     }
@@ -126,7 +129,7 @@ def main() -> None:
         match = re.search(rf"{name}\s*:\s*{name}\s*\{{(.*?)\}};", text, re.S)
         if not match or not re.search(r"tap-ms\s*=\s*<64>\s*;", match.group(1)):
             fail(f"{name} tap-ms changed (expected 64)")
-    print("POINTING GUARD PASS: two encoders exposed to editor; pointing/scrolling behaviors and hardware protected")
+    print("POINTING GUARD PASS: vendor-confirmed LEFT wheel / logical RIGHT slot mapping, PMW3610 and scroll behavior preserved")
 
 if __name__ == "__main__":
     main()
