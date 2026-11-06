@@ -1,0 +1,12 @@
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  verify-pointing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Guard trackball and encoder configuration
+        run: python3 scripts/check_pointing_config.py
+  build:
+    needs: verify-pointing
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3
