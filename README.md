@@ -4,29 +4,40 @@ This is an editable ZMK **source configuration**, based on [Tolian82/keymap-edit
 
 **Important:** The seller's two functioning `.uf2` files are compiled binaries, not source archives. Their exact source cannot be reliably recovered. This repository is a *best available source baseline*, **not a verified binary-equivalent reconstruction**. Do not overwrite working firmware until a test build is checked on the keyboard.
 
-## Expected behavior and latest owner clarification
+## Actual hardware (confirmed by owner)
 
-| Active layer | Left EC11 encoder | Right PMW3610 trackball | Right EC11 encoder |
-| --- | --- | --- | --- |
-| 0 | Vertical scrolling | Mouse cursor | Vertical scrolling (existing binding) |
-| 1 | **Vertical scrolling remains enabled** | Scrolling (`scroll-layers = <1>`) | Horizontal scrolling |
-| 2 | Vertical scrolling | Mouse cursor, unless another layer activates scrolling | Horizontal scrolling |
-| Other layers | Inherits a lower active layer's vertical-scroll binding unless explicitly configured | Mouse unless layer 1 is the highest active layer | Existing ZMK fallback behavior |
+| Active ZMK layer | Physical LEFT rotary scrolling wheel (EC11) | Physical RIGHT PMW3610 trackball |
+| --- | --- | --- |
+| `layer_0` — first layer | Vertical scrolling | Mouse cursor |
+| `layer_1` — second layer | Vertical scrolling | Scrolling |
+| `layer_2` and other layers | Left scrolling retained by explicit bindings or lower-layer fallback | Mouse cursor unless `layer_1` becomes the highest active layer |
 
-The owner's latest instruction is **to keep the left encoder scrolling on ALL layers**. No attempt has been made to disable it on layer 1. The existing `sensor-bindings` are preserved verbatim in `config/charybdis.keymap`.
+**There is no right rotary encoder on the physical keyboard.** An earlier README incorrectly described one. The right half has **only the trackball**.
 
-## Why encoder/sensor metadata is needed
+## Why a disabled right encoder *placeholder* still exists in Devicetree
 
-The seller's ZMK board definition declares two rotary encoders in `charybdis.dtsi`, with one enabled by each half's overlay. Earlier `config/charybdis.json` incorrectly contained `"sensors": []`, so the web editor had no matching sensor layout metadata. This file now explicitly describes both encoders, in ZMK sensor order:
+The original source includes a two-entry ZMK `zmk,keymap-sensors` list:
+`sensors = <&left_encoder_1 &right_encoder>;`.
+The left wheel uses slot 0 in this array; the second slot is merely a logical
+placeholder. This order must remain stable across the split BLE connection,
+and central ZMK v0.3 requires a `zmk,keymap-sensors` node to receive left
+sensor events.
 
-1. `left_encoder_1` (left EC11, vertical scrolling)
-2. `right_encoder` (right EC11, vertical on layer 0 and horizontal on layers 1/2)
+The candidate change on this diagnostic branch explicitly **disables** the
+nonexistent `right_encoder` in the right half's overlay. This avoids configuring
+GPIO interrupts for a device that does not exist. The physical left encoder,
+its logical index, `sensor-bindings`, the PMW3610 driver and
+`scroll-layers = <1>` are unchanged.
 
-**Do not confuse the right rotary encoder with the right PMW3610 trackball.** The trackball is managed by its own driver in `charybdis_right.overlay`, switching to scroll on layer 1, and is **not** listed as a keymap encoder.
+`config/charybdis.json` still describes **two logical sensor positions** for
+the Keymap Editor but marks the unwired right slot `enabled: false`.
+That slot is not a physical control. If the editor rewrites `sensor-bindings`
+during a save, the GitHub Actions guard must fail.
 
-The `BEHAVIORS` tab exposes the definitions for the two encoder rotate behaviors and the `&msc` acceleration settings. These already match the source and do not need manual changes. When saving the keymap, the editor is expected to preserve the `sensor-bindings` assignments; GitHub Actions will reject a modified keymap if it doesn't.
-
-**This fix has not yet been validated against a real editor save-and-flash cycle.** Keep the vendor UF2 files as rollback copies until confirmed physically.
+**IMPORTANT:** This is a proposed diagnostic change, not a proven fix.
+The original uploaded seller UF2 files are the rollback reference. Compile
+success alone is not proof of reliable left-wheel scrolling. Do not merge or
+flash this candidate before a deliberate physical test plan.
 
 ## Editing with the web keymap editor
 

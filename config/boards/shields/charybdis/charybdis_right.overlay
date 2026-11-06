@@ -61,8 +61,11 @@
     };
 };
 
+/* The right half has no physical rotary encoder. Keep the logical DT node
+ * in charybdis.dtsi to preserve split sensor indices (left=0, right=1),
+ * but never enable a non-existent GPIO-backed device on this half. */
 &right_encoder {
-    status = "okay";
+    status = "disabled";
 };
 
 //RGB bus

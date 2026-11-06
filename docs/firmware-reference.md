@@ -22,3 +22,11 @@ The editor itself is not a UF2-to-ZMK decompiler. Repeated firmware builds can d
 The original source config had `config/charybdis.json: "sensors": []` despite declaring `left_encoder_1` and `right_encoder` in its ZMK shield. The metadata has been updated to expose both rotary encoders in the same order as `charybdis.dtsi`. This changes **editor metadata only**; it does not modify hardware overlays, PMW3610 source, keymap bindings, or the flashing reference binaries.
 
 Verification: CI verifies the sensor list, locked ZMK hardware configuration, rotate behaviors, `&msc` scroll parameters, and per-layer sensor bindings. This does not replace a physical regression test after the editor saves a change.
+
+## Hardware correction and diagnostic candidate (2026-11-06)
+
+Owner confirms **one physical left scroll wheel and one physical right PMW3610 trackball; no right wheel**. Previous instructions interpreting `right_encoder` as a physical wheel were incorrect.
+
+The right-half overlay previously enabled the phantom GPIO-backed rotary device. This diagnostic candidate changes its `status` to `disabled`, while preserving `sensors = <&left_encoder_1 &right_encoder>;` in the shared DTSI and keeping the second binding as a logical unused slot. The ZMK central BLE sensor subscription remains compiled; left sensor index stays 0.
+
+An actual hardware fix is **not yet established**. The user has observed that reverting only the right controller to the vendor UF2 made the left scroll wheel unresponsive, although ordinary keys on both halves still work. This may also be a BLE sensor notification/initialization problem or a left encoder signal problem. No `settings_reset` recommended without a pairing plan.
