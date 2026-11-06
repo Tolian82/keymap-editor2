@@ -15,6 +15,19 @@ This is an editable ZMK **source configuration**, based on [Tolian82/keymap-edit
 
 The owner's latest instruction is **to keep the left encoder scrolling on ALL layers**. No attempt has been made to disable it on layer 1. The existing `sensor-bindings` are preserved verbatim in `config/charybdis.keymap`.
 
+## Why encoder/sensor metadata is needed
+
+The seller's ZMK board definition declares two rotary encoders in `charybdis.dtsi`, with one enabled by each half's overlay. Earlier `config/charybdis.json` incorrectly contained `"sensors": []`, so the web editor had no matching sensor layout metadata. This file now explicitly describes both encoders, in ZMK sensor order:
+
+1. `left_encoder_1` (left EC11, vertical scrolling)
+2. `right_encoder` (right EC11, vertical on layer 0 and horizontal on layers 1/2)
+
+**Do not confuse the right rotary encoder with the right PMW3610 trackball.** The trackball is managed by its own driver in `charybdis_right.overlay`, switching to scroll on layer 1, and is **not** listed as a keymap encoder.
+
+The `BEHAVIORS` tab exposes the definitions for the two encoder rotate behaviors and the `&msc` acceleration settings. These already match the source and do not need manual changes. When saving the keymap, the editor is expected to preserve the `sensor-bindings` assignments; GitHub Actions will reject a modified keymap if it doesn't.
+
+**This fix has not yet been validated against a real editor save-and-flash cycle.** Keep the vendor UF2 files as rollback copies until confirmed physically.
+
 ## Editing with the web keymap editor
 
 1. Open https://nickcoutsos.github.io/keymap-editor/.

@@ -16,3 +16,9 @@ Source configuration retained from `Tolian82/keymap-editor`:
 - Exact checks before build: `scripts/check_pointing_config.py`.
 
 The editor itself is not a UF2-to-ZMK decompiler. Repeated firmware builds can differ due to toolchain revision, driver dependencies, build flags and source differences.
+
+## Keymap Editor metadata correction (2026-11-06)
+
+The original source config had `config/charybdis.json: "sensors": []` despite declaring `left_encoder_1` and `right_encoder` in its ZMK shield. The metadata has been updated to expose both rotary encoders in the same order as `charybdis.dtsi`. This changes **editor metadata only**; it does not modify hardware overlays, PMW3610 source, keymap bindings, or the flashing reference binaries.
+
+Verification: CI verifies the sensor list, locked ZMK hardware configuration, rotate behaviors, `&msc` scroll parameters, and per-layer sensor bindings. This does not replace a physical regression test after the editor saves a change.

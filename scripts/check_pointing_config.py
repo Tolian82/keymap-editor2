@@ -6,6 +6,7 @@ This checks repository consistency only; it is NOT proof of equivalence to vendo
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import sys
 from pathlib import Path
@@ -17,7 +18,7 @@ LOCKED_GIT_BLOBS = {
     "build.yaml": "1b86acfe7d93a3f6726d1ca7cb88d52898682748",
     "config/west.yml": "eeb5ee4705b1e16c85204a9f978772c3d6728036",
     "config/charybdis.conf": "f58dcd9e855b7d81a6121e67fb6cc92e71423412",
-    "config/charybdis.json": "d31b2966b4481cc7c20bfcbd83308efa77e5ae30",
+    "config/charybdis.json": "ac273223cc4212a7c52fc62c12c60d7bc01728cb",
     "config/boards/shields/charybdis/Kconfig.defconfig": "851ad1e92d01d87610509949e16fbb640ef7a812",
     "config/boards/shields/charybdis/Kconfig.shield": "16a7b54e6400a40ad199c64c29e8bfd6933db762",
     "config/boards/shields/charybdis/charybdis.conf": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
@@ -47,6 +48,21 @@ def main() -> None:
         got = git_blob_id(file.read_bytes())
         if got != expected:
             fail(f"protected configuration modified: {path} (expected {expected}, got {got}); restore or review the intentional hardware change")
+
+    metadata = json.loads((ROOT / "config/charybdis.json").read_text())
+    actual_sensors = [
+        (item.get("ref"), item.get("compatible"), item.get("enabled"))
+        for item in metadata.get("sensors", [])
+    ]
+    expected_sensors = [
+        ("left_encoder_1", "alps,ec11", True),
+        ("right_encoder", "alps,ec11", True),
+    ]
+    if actual_sensors != expected_sensors:
+        fail(
+            "editor sensor metadata must list LEFT and RIGHT encoders in "
+            f"the ZMK sensor order: {actual_sensors}"
+        )
 
     text = uncomment((ROOT / "config/charybdis.keymap").read_text())
     layers = dict(re.findall(r"(?ms)^\s*layer_(\d+)\s*\{(.*?)^\s*\};", text))
@@ -83,7 +99,34 @@ def main() -> None:
         normalized = re.sub(r"\s+", " ", match.group(1))
         if f"<&msc {first}>, <&msc {second}>" not in normalized:
             fail(f"sensor behavior changed: {name}")
-    print("POINTING GUARD PASS: left encoder retained; right trackball overlay locked; core layer sensor bindings intact")
+    # Reconfigurations in BEHAVIORS are also part of scrolling semantics.
+    # These are the settings shown in the user's editor screenshots.
+    for ref, expected_values in {
+        "msc": {
+            "delay-ms": "0",
+            "time-to-max-speed-ms": "30",
+            "acceleration-exponent": "0",
+        },
+        "lt": {
+            "tapping-term-ms": "200",
+            "quick-tap-ms": "150",
+            "flavor": '"balanced"',
+        },
+    }.items():
+        match = re.search(rf"&{ref}\\s*\\{{(.*?)\\}};", text, re.S)
+        if not match:
+            fail(f"missing behavior reconfiguration: &{ref}")
+        actual_values = dict(
+            re.findall(r"([A-Za-z][\\w-]*)\\s*=\\s*([^;]+);", match.group(1))
+        )
+        for field, expected_value in expected_values.items():
+            if re.sub(r"\\s+", "", actual_values.get(field, "")) != expected_value:
+                fail(f"&{ref} {field} changed, expected {expected_value}")
+    for name in ("scroll_vertical_encoder", "scroll_horizontal_encoder"):
+        match = re.search(rf"{name}\\s*:\\s*{name}\\s*\\{{(.*?)\\}};", text, re.S)
+        if not match or not re.search(r"tap-ms\\s*=\\s*<64>\\s*;", match.group(1)):
+            fail(f"{name} tap-ms changed (expected 64)")
+    print("POINTING GUARD PASS: two encoders exposed to editor; pointing/scrolling behaviors and hardware protected")
 
 if __name__ == "__main__":
     main()
