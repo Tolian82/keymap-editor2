@@ -30,10 +30,10 @@ LOCKED_GIT_BLOBS = {
 }
 
 def git_blob_id(data: bytes) -> str:
-    return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\\0" + data).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
 
 def uncomment(content: str) -> str:
-    return re.sub(r"/\\*.*?\\*/|//[^\\n]*", "", content, flags=re.S)
+    return re.sub(r"/\*.*?\*/|//[^\n]*", "", content, flags=re.S)
 
 def fail(reason: str) -> None:
     print(f"POINTING GUARD FAIL: {reason}", file=sys.stderr)
@@ -49,7 +49,7 @@ def main() -> None:
             fail(f"protected configuration modified: {path} (expected {expected}, got {got}); restore or review the intentional hardware change")
 
     text = uncomment((ROOT / "config/charybdis.keymap").read_text())
-    layers = dict(re.findall(r"(?ms)^\\s*layer_(\\d+)\\s*\\{(.*?)^\\s*\\};", text))
+    layers = dict(re.findall(r"(?ms)^\s*layer_(\d+)\s*\{(.*?)^\s*\};", text))
     if not {"0", "1", "2"}.issubset(layers):
         fail("missing or reordered core layers 0/1/2")
     expected = {
@@ -58,7 +58,7 @@ def main() -> None:
         "2": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
     }
     for layer, body in layers.items():
-        bindings = re.findall(r"sensor-bindings\\s*=\\s*(.*?);", body, re.S)
+        bindings = re.findall(r"sensor-bindings\s*=\s*(.*?);", body, re.S)
         if layer in expected and len(bindings) != 1:
             fail(f"layer {layer} must have exactly one sensor-bindings property")
         if not bindings:
@@ -76,11 +76,11 @@ def main() -> None:
         ("scroll_horizontal_encoder", "SCRL_LEFT", "SCRL_RIGHT"),
     ]:
         match = re.search(
-            rf"{name}\\s*:\\s*{name}\\s*\\{{(.*?)\\}};", text, re.S
+            rf"{name}\s*:\s*{name}\s*\{{(.*?)\}};", text, re.S
         )
         if not match:
             fail(f"missing sensor behavior: {name}")
-        normalized = re.sub(r"\\s+", " ", match.group(1))
+        normalized = re.sub(r"\s+", " ", match.group(1))
         if f"<&msc {first}>, <&msc {second}>" not in normalized:
             fail(f"sensor behavior changed: {name}")
     print("POINTING GUARD PASS: left encoder retained; right trackball overlay locked; core layer sensor bindings intact")
