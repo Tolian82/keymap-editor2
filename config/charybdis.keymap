@@ -80,6 +80,33 @@
             #binding-cells = <0>;
             bindings = <&rgb_ug RGB_EFF &rgb_ug RGB_COLOR_HSB(250,100,50) &to 2>;
         };
+        Win_Left: Win_Left {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LG(LEFT)>;
+            label = "WIN_LEFT";
+        };
+
+        WIn_Right: WIn_Right {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LG(RIGHT_ARROW)>;
+            label = "WIN_RIGHT";
+        };
+
+        Ru_En: Ru_En {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LA(LEFT_SHIFT)>;
+            label = "RU_EN";
+        };
+
+        Ctrl_Alt_Del: Ctrl_Alt_Del {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LA(LC(DEL))>;
+            label = "CTRL_ALT_DEL";
+        };
     };
 
     keymap {
@@ -107,7 +134,7 @@
         layer_1 {
             bindings = <
 &kp F1          &kp F2           &kp F3           &kp F4           &kp F5           &kp F6        &kp F7     &kp F8      &kp F9            &kp F10            &kp F11  &kp F12
-&kp CAPS        &none            &none            &none            &none            &none         &none      &none       &kp UP            &none              &none    &none
+&kp CAPS        &none            &none            &none            &Win_Left        &WIn_Right    &Ru_En     &none       &kp UP            &none              &none    &Ctrl_Alt_Del
 &kp LEFT_SHIFT  &none            &none            &none            &bt BT_NXT       &bt BT_CLR    &none      &kp LEFT    &kp DOWN          &kp RIGHT          &none    &none
 &kp LCTRL       &rgb_ug RGB_BRD  &rgb_ug RGB_BRI  &rgb_ug RGB_EFF  &rgb_ug RGB_TOG  &none         &none      &none       &kp LEFT_BRACKET  &kp RIGHT_BRACKET  &none    &kp EQUAL
                                                   &kp LEFT_ALT     &kp SPACE        &To0_macro    &none      &To0_macro
