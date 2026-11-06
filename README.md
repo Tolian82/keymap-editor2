@@ -11,12 +11,12 @@ images were reproduced **byte for byte** by building the historical
 `6c32880db0a7a61efa826c3b624ba6cb0884f769` together with the matching
 shield/ZMK build sources:
 
-- **Immutable reference source branch:** [baseline/vendor-bitexact-20261106](https://github.com/Tolian82/keymap-editor2/tree/baseline/vendor-bitexact-20261106)
+- **Frozen reference Git tag:** [vendor-bitexact-20261106](https://github.com/Tolian82/keymap-editor2/tree/vendor-bitexact-20261106)
 - **Successful exact-match reference build:** [42240434217](https://github.com/Tolian82/keymap-editor2/actions/runs/42240434217)
 - LEFT SHA-256: `9eef19d7138cfe3c7acff26d1a562ca7a55d6463599c0a4c1bd12e86b383b6a0`
 - RIGHT SHA-256: `42ad17a02ff98e46799ce09651cb5cca5d4bb2fe0fea19f8951a9a765dc85672`
 
-Do **not** edit the reference branch. It is intentionally kept free of the owner's
+Do **not** move the reference tag. Its source is intentionally kept free of the owner's
 later custom key assignments and Windows macros so the original two UF2 images
 can always be regenerated and compared.
 

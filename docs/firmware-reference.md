@@ -6,7 +6,7 @@ The previously uploaded functioning manufacturer's UF2 pair is now reproduced
 bit-for-bit from public source and a GitHub Actions build:
 
 - Historical source: [Vzhao-L/zmk-for-charybdis @ 6c32880](https://github.com/Vzhao-L/zmk-for-charybdis/commit/6c32880db0a7a61efa826c3b624ba6cb0884f769).
-- Frozen source branch: [baseline/vendor-bitexact-20261106](https://github.com/Tolian82/keymap-editor2/tree/baseline/vendor-bitexact-20261106).
+- Frozen source tag: [vendor-bitexact-20261106](https://github.com/Tolian82/keymap-editor2/tree/vendor-bitexact-20261106).
 - Archived reference build: [GitHub Actions 42240434217](https://github.com/Tolian82/keymap-editor2/actions/runs/42240434217).
 
 | Source of images | LEFT SHA-256 | RIGHT SHA-256 |
