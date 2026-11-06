@@ -103,13 +103,13 @@ def main() -> None:
     # These are the settings shown in the user's editor screenshots.
     for ref, expected_values in {
         "msc": {
-            "delay-ms": "0",
-            "time-to-max-speed-ms": "30",
-            "acceleration-exponent": "0",
+            "delay-ms": "<0>",
+            "time-to-max-speed-ms": "<30>",
+            "acceleration-exponent": "<0>",
         },
         "lt": {
-            "tapping-term-ms": "200",
-            "quick-tap-ms": "150",
+            "tapping-term-ms": "<200>",
+            "quick-tap-ms": "<150>",
             "flavor": '"balanced"',
         },
     }.items():
