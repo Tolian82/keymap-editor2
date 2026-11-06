@@ -60,7 +60,7 @@ def main() -> None:
     ]
     if actual_sensors != expected_sensors:
         fail(
-             "logical DT sensor slots must be left=enabled and right=unwired in "
+            "logical DT sensor slots must be left=enabled and right=unwired in "
             f"the ZMK sensor order: {actual_sensors}"
         )
 
@@ -68,16 +68,16 @@ def main() -> None:
     # enabled zmk,keymap-sensors node to subscribe to left encoder notifications.
     dtsi = uncomment((ROOT / "config/boards/shields/charybdis/charybdis.dtsi").read_text())
     if not re.search(
-        r"sensors\\s*=\\s*<&left_encoder_1\\s+&right_encoder>\\s*;", dtsi
+        r"sensors\s*=\s*<&left_encoder_1\s+&right_encoder>\s*;", dtsi
     ):
         fail("logical sensor index mapping changed: LEFT must remain index 0")
     left_overlay = uncomment((ROOT / "config/boards/shields/charybdis/charybdis_left.overlay").read_text())
     right_overlay = uncomment((ROOT / "config/boards/shields/charybdis/charybdis_right.overlay").read_text())
-    if not re.search(r'&left_encoder_1\\s*\\{\\s*status\\s*=\\s*"okay"\\s*;', left_overlay):
+    if not re.search(r'&left_encoder_1\s*\{\s*status\s*=\s*"okay"\s*;', left_overlay):
         fail("physical left encoder is not enabled")
-    if not re.search(r'&right_encoder\\s*\\{\\s*status\\s*=\\s*"disabled"\\s*;', right_overlay):
+    if not re.search(r'&right_encoder\s*\{\s*status\s*=\s*"disabled"\s*;', right_overlay):
         fail("phantom right encoder must be disabled on actual hardware")
-    if not re.search(r'scroll-layers\\s*=\\s*<1>\\s*;', right_overlay):
+    if not re.search(r'scroll-layers\s*=\s*<1>\s*;', right_overlay):
         fail("right trackball must scroll only on layer_1")
 
     text = uncomment((ROOT / "config/charybdis.keymap").read_text())
