@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # cryptographic authenticity check). Update deliberately for hardware upgrades.
 LOCKED_GIT_BLOBS = {
     "build.yaml": "1b86acfe7d93a3f6726d1ca7cb88d52898682748",
-    "config/west.yml": "631514f256504442bbdb3f761d522f53b64300a6",
+    "config/west.yml": "eeb5ee4705b1e16c85204a9f978772c3d6728036",
     "config/charybdis.conf": "f58dcd9e855b7d81a6121e67fb6cc92e71423412",
     "config/charybdis.json": "d31b2966b4481cc7c20bfcbd83308efa77e5ae30",
     "config/boards/shields/charybdis/Kconfig.defconfig": "851ad1e92d01d87610509949e16fbb640ef7a812",
