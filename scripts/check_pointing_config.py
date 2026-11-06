@@ -53,7 +53,7 @@ def main() -> None:
     if not {"0", "1", "2"}.issubset(layers):
         fail("missing or reordered core layers 0/1/2")
     expected = {
-        "0": ["&scroll_vertical_encoder", "&scroll_vertical_encoder"],
+        "0": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
         "1": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
         "2": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
     }
@@ -83,7 +83,7 @@ def main() -> None:
         normalized = re.sub(r"\s+", " ", match.group(1))
         if f"<&msc {first}>, <&msc {second}>" not in normalized:
             fail(f"sensor behavior changed: {name}")
-    print("POINTING GUARD PASS: left encoder retained; right trackball overlay locked; core layer sensor bindings intact")
+    print("FORENSIC GUARD PASS: October 2026 upstream sensor-binding variant validated for binary comparison only")
 
 if __name__ == "__main__":
     main()
