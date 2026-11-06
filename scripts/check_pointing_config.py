@@ -113,18 +113,18 @@ def main() -> None:
             "flavor": '"balanced"',
         },
     }.items():
-        match = re.search(rf"&{ref}\\s*\\{{(.*?)\\}};", text, re.S)
+        match = re.search(rf"&{ref}\s*\{{(.*?)\}};", text, re.S)
         if not match:
             fail(f"missing behavior reconfiguration: &{ref}")
         actual_values = dict(
-            re.findall(r"([A-Za-z][\\w-]*)\\s*=\\s*([^;]+);", match.group(1))
+            re.findall(r"([A-Za-z][\w-]*)\s*=\s*([^;]+);", match.group(1))
         )
         for field, expected_value in expected_values.items():
-            if re.sub(r"\\s+", "", actual_values.get(field, "")) != expected_value:
+            if re.sub(r"\s+", "", actual_values.get(field, "")) != expected_value:
                 fail(f"&{ref} {field} changed, expected {expected_value}")
     for name in ("scroll_vertical_encoder", "scroll_horizontal_encoder"):
-        match = re.search(rf"{name}\\s*:\\s*{name}\\s*\\{{(.*?)\\}};", text, re.S)
-        if not match or not re.search(r"tap-ms\\s*=\\s*<64>\\s*;", match.group(1)):
+        match = re.search(rf"{name}\s*:\s*{name}\s*\{{(.*?)\}};", text, re.S)
+        if not match or not re.search(r"tap-ms\s*=\s*<64>\s*;", match.group(1)):
             fail(f"{name} tap-ms changed (expected 64)")
     print("POINTING GUARD PASS: two encoders exposed to editor; pointing/scrolling behaviors and hardware protected")
 
