@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCKED_GIT_BLOBS = {
     "build.yaml": "1b86acfe7d93a3f6726d1ca7cb88d52898682748",
     "config/west.yml": "eeb5ee4705b1e16c85204a9f978772c3d6728036",
-    "config/charybdis.conf": "f58dcd9e855b7d81a6121e67fb6cc92e71423412",
+    "config/charybdis.conf": "95cfaee3e2e07df28deb043282f8edf899310bdd",
     "config/charybdis.json": "ac273223cc4212a7c52fc62c12c60d7bc01728cb",
     "config/boards/shields/charybdis/Kconfig.defconfig": "851ad1e92d01d87610509949e16fbb640ef7a812",
     "config/boards/shields/charybdis/Kconfig.shield": "16a7b54e6400a40ad199c64c29e8bfd6933db762",
