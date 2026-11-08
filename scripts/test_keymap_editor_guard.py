@@ -59,8 +59,17 @@ def main() -> None:
         "left wheel binding changed",
         lambda root: change(
             root / KEYMAP,
+            "sensor-bindings = <&scroll_vertical_encoder &scroll_horizontal_encoder>;",
+            "sensor-bindings = <&scroll_horizontal_encoder &scroll_horizontal_encoder>;",
+        ),
+        False,
+    )
+    test_case(
+        "working-v2 right sensor slot accidentally changed to vertical",
+        lambda root: change(
+            root / KEYMAP,
+            "sensor-bindings = <&scroll_vertical_encoder &scroll_horizontal_encoder>;",
             "sensor-bindings = <&scroll_vertical_encoder &scroll_vertical_encoder>;",
-            "sensor-bindings = <&scroll_horizontal_encoder &scroll_vertical_encoder>;",
         ),
         False,
     )

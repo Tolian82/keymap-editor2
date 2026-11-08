@@ -69,7 +69,7 @@ def main() -> None:
     if not {"0", "1", "2"}.issubset(layers):
         fail("missing or reordered core layers 0/1/2")
     expected = {
-        "0": ["&scroll_vertical_encoder", "&scroll_vertical_encoder"],
+        "0": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
         "1": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
         "2": ["&scroll_vertical_encoder", "&scroll_horizontal_encoder"],
     }
@@ -126,7 +126,7 @@ def main() -> None:
         match = re.search(rf"{name}\s*:\s*{name}\s*\{{(.*?)\}};", text, re.S)
         if not match or not re.search(r"tap-ms\s*=\s*<64>\s*;", match.group(1)):
             fail(f"{name} tap-ms changed (expected 64)")
-    print("POINTING GUARD PASS: two encoders exposed to editor; pointing/scrolling behaviors and hardware protected")
+    print("POINTING GUARD PASS: uploaded working v2 layer-0 sensor mapping and guarded hardware/behaviors")
 
 if __name__ == "__main__":
     main()
