@@ -69,29 +69,29 @@ def main() -> None:
 
     # Working v1: TWO left sensor channels, no right rotary, and v1 board profile.
     board_text = (ROOT / "build.yaml").read_text()
-    boards = re.findall(r"(?m)^  - board: (\\S+)\\s*$", board_text)
+    boards = re.findall(r"(?m)^  - board: (\S+)\s*$", board_text)
     if boards != ["nice_nano"] * 3:
         fail(f"v1 board target mismatch: {boards}")
     dtsi = uncomment((ROOT / "config/boards/shields/charybdis/charybdis.dtsi").read_text())
-    if not re.search(r"sensors\\s*=\\s*<&left_encoder_1\\s+&left_encoder_2>\\s*;", dtsi):
+    if not re.search(r"sensors\s*=\s*<&left_encoder_1\s+&left_encoder_2>\s*;", dtsi):
         fail("v1 hardware must keep two LEFT encoder sensor slots")
     if "right_encoder:" in dtsi or "encoder_right" in dtsi:
         fail("v1 hardware must not create a RIGHT rotary encoder")
     left_overlay = uncomment((ROOT / "config/boards/shields/charybdis/charybdis_left.overlay").read_text())
     for sensor in ("left_encoder_1", "left_encoder_2"):
-        if not re.search(rf"&{sensor}\\s*\\{{\\s*status\\s*=\\s*\"okay\"\\s*;", left_overlay):
+        if not re.search(rf"&{sensor}\s*\{{\s*status\s*=\s*\"okay\"\s*;", left_overlay):
             fail(f"left wheel sensor {sensor} not enabled")
     right_overlay = uncomment((ROOT / "config/boards/shields/charybdis/charybdis_right.overlay").read_text())
     if "right_encoder" in right_overlay:
         fail("right encoder must not be enabled on PMW3610 half")
-    if not re.search(r"scroll-layers\\s*=\\s*<1>\\s*;", right_overlay):
+    if not re.search(r"scroll-layers\s*=\s*<1>\s*;", right_overlay):
         fail("right PMW3610 scroll layer changed (must be layer_1)")
 
     text = uncomment((ROOT / "config/charybdis.keymap").read_text())
     if "#define ZMK_POINTING_DEFAULT_SCRL_VAL 12" not in text:
         fail("v1 scroll value changed")
     for listener,processor in (("mmv_input_listener","zip_xy_scaler"),("msc_input_listener","zip_scroll_scaler")):
-        if not re.search(rf"&{listener}\\s*\\{{\\s*input-processors\\s*=\\s*<&{processor}\\s+2\\s+1>\\s*;\\s*\\}};", text):
+        if not re.search(rf"&{listener}\s*\{{\s*input-processors\s*=\s*<&{processor}\s+2\s+1>\s*;\s*\}};", text):
             fail(f"v1 input scaler changed: {processor}")
 
     layers = dict(re.findall(r"(?ms)^\s*layer_(\d+)\s*\{(.*?)^\s*\};", text))
@@ -153,7 +153,7 @@ def main() -> None:
                 fail(f"&{ref} {field} changed, expected {expected_value}")
     for name in ("scroll_vertical_encoder", "scroll_horizontal_encoder"):
         match = re.search(rf"{name}\s*:\s*{name}\s*\{{(.*?)\}};", text, re.S)
-        if not match or not re.search(r"tap-ms\s*=\s*<64>\s*;", match.group(1)):
+        if not match or not re.search(r"tap-ms\s*=\s*<100>\s*;", match.group(1)):
             fail(f"{name} tap-ms changed (expected 100)")
     print("POINTING GUARD PASS: proven-v1 LEFT wheel sensor topology and PMW3610 scroll protection intact")
 
