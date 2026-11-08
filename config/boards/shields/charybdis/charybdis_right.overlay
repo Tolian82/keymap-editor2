@@ -61,8 +61,11 @@
     };
 };
 
+/* The right PCB has no physical rotary wheel.  Keep right_encoder in the
+ * shared sensor-index list (slot 1) to preserve the split BLE protocol and
+ * left_encoder_1 in slot 0, but never enable an unwired GPIO interrupt here. */
 &right_encoder {
-    status = "okay";
+    status = "disabled";
 };
 
 //RGB bus

@@ -20,8 +20,8 @@ EXPECTED = {
         "absent": (b"encoder_left_2", b"encoder_right", b"trackball@0"),
     },
     "right": {
-        "required": (b"encoder_right", b"trackball@0", b"ZMK"),
-        "absent": (b"encoder_left_1", b"encoder_left_2"),
+        "required": (b"trackball@0", b"ZMK"),
+        "absent": (b"encoder_right", b"encoder_left_1", b"encoder_left_2"),
     },
 }
 

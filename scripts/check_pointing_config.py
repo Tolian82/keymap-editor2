@@ -27,7 +27,7 @@ LOCKED_GIT_BLOBS = {
     "config/boards/shields/charybdis/charybdis_left.conf": "e397e04fda6f28a70960ebf7824c0603746160f2",
     "config/boards/shields/charybdis/charybdis_left.overlay": "2f011d99e263e7d8986cede0377334270c6a0aa0",
     "config/boards/shields/charybdis/charybdis_right.conf": "c36ca9da1b6524cb4eb3fd9c7d3922f28113eb43",
-    "config/boards/shields/charybdis/charybdis_right.overlay": "b5a1e8f6327d0f3e4cecac94d778c5aef3cdcfc2"
+    "config/boards/shields/charybdis/charybdis_right.overlay": "4b91f6ae2412b86b8a7d84301ef5d3d6c39286e0"
 }
 
 def git_blob_id(data: bytes) -> str:
@@ -63,6 +63,24 @@ def main() -> None:
             "editor sensor metadata must list LEFT and RIGHT encoders in "
             f"the ZMK sensor order: {actual_sensors}"
         )
+
+    # Explicitly protect the minimal diagnostic fix: the phantom RIGHT EC11
+    # must be disabled, while ZMK's two stable sensor-index references remain.
+    right_overlay = uncomment(
+        (ROOT / "config/boards/shields/charybdis/charybdis_right.overlay").read_text()
+    )
+    if not re.search(
+        r'&right_encoder\s*\{\s*status\s*=\s*"disabled"\s*;',
+        right_overlay,
+    ):
+        fail("phantom right encoder must remain disabled")
+    dtsi = uncomment(
+        (ROOT / "config/boards/shields/charybdis/charybdis.dtsi").read_text()
+    )
+    if not re.search(
+        r"sensors\s*=\s*<&left_encoder_1\s+&right_encoder>\s*;", dtsi
+    ):
+        fail("left wheel must keep split sensor index 0")
 
     text = uncomment((ROOT / "config/charybdis.keymap").read_text())
     layers = dict(re.findall(r"(?ms)^\s*layer_(\d+)\s*\{(.*?)^\s*\};", text))
