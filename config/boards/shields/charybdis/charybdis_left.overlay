@@ -19,9 +19,9 @@
 &left_encoder_1 {
     status = "okay";
 };
-/* &left_encoder_2 {
-   status = "okay";
-}; */
+&left_encoder_2 {
+    status = "okay";
+};
 //RGB bus
 &pinctrl {
     spi3_default: spi3_default {

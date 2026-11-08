@@ -353,11 +353,11 @@
       "enabled": true
     },
     {
-      "ref": "right_encoder",
-      "name": "encoder_right",
-      "identifier": "encoder_right",
+      "ref": "left_encoder_2",
+      "name": "encoder_left_2",
+      "identifier": "encoder_left_2",
       "compatible": "alps,ec11",
-      "label": "RIGHT_ENCODER",
+      "label": "LEFT_WHEEL_CHANNEL_2",
       "enabled": true
     }
   ]
