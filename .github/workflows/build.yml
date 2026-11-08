@@ -5,8 +5,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Guard trackball and encoder configuration
+      - name: Guard scroll and trackball source configuration
         run: python3 scripts/check_pointing_config.py
+      - name: Test editor-style key changes are allowed and scroll changes rejected
+        run: python3 scripts/test_keymap_editor_guard.py
+
   build:
     needs: verify-pointing
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3
+
+  verify-compiled-pointing:
+    needs: [verify-pointing, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: firmware
+          path: firmware
+      - name: Check generated UF2 device signatures match reference run
+        run: python3 scripts/check_compiled_pointing.py firmware

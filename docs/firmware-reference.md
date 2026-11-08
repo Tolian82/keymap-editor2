@@ -1,24 +1,55 @@
-# Known-good seller firmware reference (provided by owner, 2026-11-06)
+# Техническая база прошивки и защита редактора
 
-These are **binary** reference images, *not decompiled source files*. The SHA-256 values below identify exactly the two uploaded files. Keep the original copies separately in case a rebuilt firmware is unsuccessful.
+## Привязка к сборке пользователя
 
-| Image | Size (bytes) | SHA-256 |
-| --- | ---: | --- |
-| `charybdis_left-nice_nano_v2-zmk.uf2` | 363008 | `9eef19d7138cfe3c7acff26d1a562ca7a55d6463599c0a4c1bd12e86b383b6a0` |
-| `charybdis_right-nice_nano_v2-zmk.uf2` | 528384 | `42ad17a02ff98e46799ce09651cb5cca5d4bb2fe0fea19f8951a9a765dc85672` |
+Источник: GitHub Actions
+[42204233271](https://github.com/Tolian82/keymap-editor2/actions/runs/42204233271),
+commit `545c53e3f94310eb013c377b495f4378a114641f`.
 
-Both uploads contain valid UF2 blocks (payload size 256, family ID `0xada52840`) and recognizable `ZMK`, `Zephyr OS v3.5.0`, `XI-MK1_2` strings. The right contains `trackball@0` and `encoder_right`; left contains `encoder_left_1`. These confirm hardware family and construction, **not exact source equivalence**.
+При восстановлении исходников дерево Git было возвращено в точности
+к этому коммиту. Все последующие изменения в `main` касаются только
+проверочных сценариев, документации и конфигурации CI.
 
-Source configuration retained from `Tolian82/keymap-editor`:
-- Trackball node: `config/boards/shields/charybdis/charybdis_right.overlay` with `scroll-layers = <1>;`.
-- Encoder hardware: `charybdis.dtsi`, left/right overlays and per-half `.conf` files.
-- Per-layer encoder bindings in `config/charybdis.keymap`.
-- Exact checks before build: `scripts/check_pointing_config.py`.
+В этой исходной базе:
+- сборка ZMK `v0.3` для `nice_nano_v2`;
+- закреплён PMW3610 драйвер `1d9c2c68ca76012e1b1e5f6ef02fa5eadc4ca399`;
+- физический левый энкодер `left_encoder_1`, логический слот `right_encoder`
+  в списке ZMK сенсоров, и правый PMW3610 трекбол;
+- поведение `scroll_vertical_encoder` и `scroll_horizontal_encoder`
+  с `tap-ms = <64>`;
+- `&msc` со значениями `time-to-max-speed-ms = <30>`,
+  `acceleration-exponent = <0>`, `delay-ms = <0>`;
+- `sensor-bindings` на `layer_0`: два вертикальных назначения;
+  на `layer_1` и `layer_2`: первое вертикальное, второе горизонтальное;
+- `scroll-layers = <1>` для правого PMW3610.
 
-The editor itself is not a UF2-to-ZMK decompiler. Repeated firmware builds can differ due to toolchain revision, driver dependencies, build flags and source differences.
+`right_encoder` не означает установленное физически правое колесо;
+на правой стороне у пользователя находится только трекбол. Программный
+слот сохранён для точного воспроизведения выбранной сборки.
 
-## Keymap Editor metadata correction (2026-11-06)
+## Защита после Keymap Editor
 
-The original source config had `config/charybdis.json: "sensors": []` despite declaring `left_encoder_1` and `right_encoder` in its ZMK shield. The metadata has been updated to expose both rotary encoders in the same order as `charybdis.dtsi`. This changes **editor metadata only**; it does not modify hardware overlays, PMW3610 source, keymap bindings, or the flashing reference binaries.
+`scripts/check_pointing_config.py` проверяет Git blob ID аппаратных файлов
+и свойства keymap, позволяя изменить обычные клавиши и макросы.
 
-Verification: CI verifies the sensor list, locked ZMK hardware configuration, rotate behaviors, `&msc` scroll parameters, and per-layer sensor bindings. This does not replace a physical regression test after the editor saves a change.
+`scripts/test_keymap_editor_guard.py` проверяет, что:
+- редактирование обычной клавиши не блокирует сборку;
+- изменение сенсорных привязок, параметров `&msc` и защищённого
+  аппаратного файла вызывает отказ.
+
+`scripts/check_compiled_pointing.py` проверяет структуру итоговых UF2
+и характерные скомпилированные имена устройств левой и правой половин.
+Этот тест не требует идентичного SHA для пользовательских изменений,
+поскольку они меняют сам бинарник.
+
+Реальное действие колеса, BLE-канала сенсоров и взаимодействие с трекболом
+может подтвердить только проверка на клавиатуре. В частности, если при
+неизменной конфигурации колесо работает через раз, автоматическая проверка
+структуры UF2 не доказывает исправность прошивки.
+
+## Исторические данные
+
+В другом эксперименте была исследована пара `nice_nano_v1`, но
+сформированный по ней пользовательский вариант не запустился.
+Ветка `main` больше не содержит ни этих опытных изменений, ни
+проверок бинарников, основанных на v1.

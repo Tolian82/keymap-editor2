@@ -1,43 +1,63 @@
-# Charybdis ZMK — keymap-editor2
+# Charybdis: редактируемая прошивка ZMK
 
-This is an editable ZMK **source configuration**, based on [Tolian82/keymap-editor](https://github.com/Tolian82/keymap-editor), itself derived from [Vzhao-L/zmk-for-charybdis](https://github.com/Vzhao-L/zmk-for-charybdis/tree/main-20250226).
+## Основа текущей ветки main
 
-**Important:** The seller's two functioning `.uf2` files are compiled binaries, not source archives. Their exact source cannot be reliably recovered. This repository is a *best available source baseline*, **not a verified binary-equivalent reconstruction**. Do not overwrite working firmware until a test build is checked on the keyboard.
+**Исходники восстановлены из успешной сборки GitHub Actions
+[№42204233271](https://github.com/Tolian82/keymap-editor2/actions/runs/42204233271)
+(коммит `545c53e3f94310eb013c377b495f4378a114641f`).**
 
-## Expected behavior and latest owner clarification
+Аппаратная и функциональная конфигурация этого коммита сохранена **без
+изменений**. Дополнительно введены только проверки, документация и изменения
+GitHub Actions, которые не меняют генерируемую прошивку.
 
-| Active layer | Left EC11 encoder | Right PMW3610 trackball | Right EC11 encoder |
-| --- | --- | --- | --- |
-| 0 | Vertical scrolling | Mouse cursor | Vertical scrolling (existing binding) |
-| 1 | **Vertical scrolling remains enabled** | Scrolling (`scroll-layers = <1>`) | Horizontal scrolling |
-| 2 | Vertical scrolling | Mouse cursor, unless another layer activates scrolling | Horizontal scrolling |
-| Other layers | Inherits a lower active layer's vertical-scroll binding unless explicitly configured | Mouse unless layer 1 is the highest active layer | Existing ZMK fallback behavior |
+- Плата сборки: `nice_nano_v2` на обеих половинах.
+- В исходном DTSI объявлен `left_encoder_1`, а также логический
+  `right_encoder`; справа физически находится **только трекбол PMW3610**,
+  и наличие программного узла не означает наличие второго колеса.
+- Левое физическое колесо: вертикальная прокрутка на `layer_0`, `layer_1`
+  и `layer_2`, наследование нижних слоёв в остальных случаях.
+- Правый трекбол: указатель мыши на `layer_0`, режим прокрутки на
+  `layer_1`, через `scroll-layers = <1>;`.
+- Приоритет этой ветки — восстановление **именно выбранного пользователем
+  исходного варианта**, а не экспериментов с профилем v1.
+- Более поздние пользовательские переназначения и дополнительные
+  макросы после коммита `545c53e` не включены в исходную базу;
+  их можно вновь добавить через редактор.
 
-The owner's latest instruction is **to keep the left encoder scrolling on ALL layers**. No attempt has been made to disable it on layer 1. The existing `sensor-bindings` are preserved verbatim in `config/charybdis.keymap`.
+Контрольные SHA-256 артефактов **оригинальной сборки №42204233271**:
 
-## Why encoder/sensor metadata is needed
+| Файл | SHA-256 |
+| --- | --- |
+| `charybdis_left-nice_nano_v2-zmk.uf2` | `9eef19d7138cfe3c7acff26d1a562ca7a55d6463599c0a4c1bd12e86b383b6a0` |
+| `charybdis_right-nice_nano_v2-zmk.uf2` | `51c1d57bdd34a0ac83922b8daa9623275cd5735d7895f21863eb574d9a6d0f05` |
 
-The seller's ZMK board definition declares two rotary encoders in `charybdis.dtsi`, with one enabled by each half's overlay. Earlier `config/charybdis.json` incorrectly contained `"sensors": []`, so the web editor had no matching sensor layout metadata. This file now explicitly describes both encoders, in ZMK sensor order:
+Эти SHA относятся к исходному архиву экшена, **а не** к новому
+варианту после изменения клавиш. Эта конкретная сборка успешно компилировалась,
+но отсутствие проблем с колёсиком на физическом устройстве не доказано.
 
-1. `left_encoder_1` (left EC11, vertical scrolling)
-2. `right_encoder` (right EC11, vertical on layer 0 and horizontal on layers 1/2)
+## Редактирование через Keymap Editor
 
-**Do not confuse the right rotary encoder with the right PMW3610 trackball.** The trackball is managed by its own driver in `charybdis_right.overlay`, switching to scroll on layer 1, and is **not** listed as a keymap encoder.
+1. Откройте [ZMK Keymap Editor](https://nickcoutsos.github.io/keymap-editor/)
+   и выберите `Tolian82/keymap-editor2`, ветка **main**.
+2. Меняйте обычные клавиши и нужные макросы. Не меняйте
+   `Sensor bindings` и вкладку `BEHAVIORS` для колесика/мыши.
+3. Сохраните изменения. После этого откройте
+   [GitHub Actions](https://github.com/Tolian82/keymap-editor2/actions).
+4. Сборка должна успешно пройти **три этапа**:
+   `verify-pointing`, `build` и `verify-compiled-pointing`.
+5. Используйте артефакт `firmware` только после всех зелёных проверок.
+   `settings_reset` не прошивайте для обычной смены клавиш.
 
-The `BEHAVIORS` tab exposes the definitions for the two encoder rotate behaviors and the `&msc` acceleration settings. These already match the source and do not need manual changes. When saving the keymap, the editor is expected to preserve the `sensor-bindings` assignments; GitHub Actions will reject a modified keymap if it doesn't.
+Проверка исходников `scripts/check_pointing_config.py` жёстко фиксирует
+плату, настройки сенсоров, трекбола, параметры скроллинга и их привязки к слоям.
+Новые тесты имитируют обычную замену клавиши (должна проходить) и
+изменение настройки скроллинга (должно блокироваться).
+После компиляции `scripts/check_compiled_pointing.py` проверяет,
+что в UF2 присутствуют устройства исходной сборки.
 
-**This fix has not yet been validated against a real editor save-and-flash cycle.** Keep the vendor UF2 files as rollback copies until confirmed physically.
+**Важно:** CI предотвращает известные изменения конфигурации, но не может
+гарантировать работу энкодера при каждом новом варианте прошивки. Требуется
+первоначально проверить восстановленную базу на клавиатуре и сохранить её как
+аппаратно принятую. Не заменяйте резервные копии своих работавших UF2.
 
-## Editing with the web keymap editor
-
-1. Open https://nickcoutsos.github.io/keymap-editor/.
-2. Log in with GitHub and choose repository **`Tolian82/keymap-editor2`**, not `keymap-editor`.
-3. Change only the desired key bindings or macros, save, and open [Actions](https://github.com/Tolian82/keymap-editor2/actions).
-4. Ensure **`verify-pointing`** succeeds before using artifacts from the **`build`** job.
-5. Flash both halves only after a working build has been verified. Keep the vendor's two working UF2 files safe as rollback images.
-
-The guard intentionally rejects changes to hardware overlays, ZMK manifests, build settings, and the core scroll sensor bindings. This is a fail-closed safety check, not an auto-repair mechanism. If editor rewrites the protected sensor bindings, CI fails instead of silently generating a potentially broken firmware. Changes to hardware files must be deliberately reviewed and guard hashes updated.
-
-**Hardware verification is still required:** source and build consistency tests cannot prove that the output behaves identically to the seller's known-good UF2 binaries.
-
-See [Firmware reference](docs/firmware-reference.md).
+Технические детали: [docs/firmware-reference.md](docs/firmware-reference.md).
