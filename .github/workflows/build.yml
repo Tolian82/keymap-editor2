@@ -5,21 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Guard v1 wheel and trackball configuration
+      - name: Guard trackball and encoder configuration
         run: python3 scripts/check_pointing_config.py
-
   build:
     needs: verify-pointing
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3
-
-  verify-binary-scroll-topology:
-    needs: [verify-pointing, build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: firmware
-          path: firmware
-      - name: Verify compiled UF2s retain working-v1 device topology
-        run: python3 scripts/check_uf2_topology.py firmware

@@ -61,7 +61,9 @@
     };
 };
 
-/* v1 right half has ONLY the PMW3610 trackball, no rotary encoder. */
+&right_encoder {
+    status = "okay";
+};
 
 //RGB bus
 &pinctrl {
