@@ -24,7 +24,7 @@ LOCKED_GIT_BLOBS = {
     "config/boards/shields/charybdis/charybdis.conf": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
     "config/boards/shields/charybdis/charybdis.dtsi": "32ac7e2c0d72209ed9041aefeb305c4cbfbf56ee",
     "config/boards/shields/charybdis/charybdis.zmk.yml": "3c0e29bc341925ea10aae4a58ab79fae04fe0573",
-    "config/boards/shields/charybdis/charybdis_left.conf": "e397e04fda6f28a70960ebf7824c0603746160f2",
+    "config/boards/shields/charybdis/charybdis_left.conf": "82303644c9059058ef8d5aaccc3e62a6ffad9093",
     "config/boards/shields/charybdis/charybdis_left.overlay": "2f011d99e263e7d8986cede0377334270c6a0aa0",
     "config/boards/shields/charybdis/charybdis_right.conf": "c36ca9da1b6524cb4eb3fd9c7d3922f28113eb43",
     "config/boards/shields/charybdis/charybdis_right.overlay": "b5a1e8f6327d0f3e4cecac94d778c5aef3cdcfc2"
